@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Loader from "../components/Loader";
 
 function UploadPage() {
   const [videoData, setVideoData] = useState({
@@ -36,7 +37,7 @@ function UploadPage() {
     const formData = new FormData();
     formData.append("title", videoData.title);
     formData.append("className", videoData.className);
-    formData.append("subject", videoData.subject);
+    formData.append("subject", videoData.subject.toLowerCase());
     formData.append("video", file);
 
     try {
@@ -63,13 +64,7 @@ function UploadPage() {
     }
   };
 
-  if (!storedUser || role !== "admin") {
-    return (
-      <p className="mt-10 font-semibold text-center text-red-600">
-        🚫 Only admins can access this page.
-      </p>
-    );
-  }
+  if (loading) return <Loader />;
 
   return (
     <div>

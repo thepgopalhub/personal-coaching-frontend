@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import Loader from "../components/Loader";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ function Register() {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -16,7 +18,9 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch("https://personal-coaching-backend.onrender.com/api/auth/register", {
+    setLoading(true);
+    try {
+      const res = await fetch("https://personal-coaching-backend.onrender.com/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
@@ -30,7 +34,17 @@ function Register() {
     } else {
       alert(data.msg || "Registration failed");
     }
+    }
+    catch (err) {
+      alert("Something went wrong. Please try again.");
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) return <Loader />;
+
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">

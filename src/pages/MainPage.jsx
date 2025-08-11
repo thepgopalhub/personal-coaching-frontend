@@ -9,20 +9,23 @@ function MainPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const navigate = useNavigate();
 
-  const videoDatabase = {
-    "10-math": [
-      { title: "Algebra Basics", url: "https://www.youtube.com/embed/QS0VHwqZ5uk" },
-      { title: "Quadratic Equations", url: "https://www.youtube.com/embed/IhWY3IepEHw" },
-    ],
-    "9-science": [
-      { title: "Atoms and Molecules", url: "https://www.youtube.com/embed/rkHOclxjSnc" },
-    ],
-  };
+  const handleFetchVideos = async () => {
+    if (!className || !subject) {
+      alert("Please enter both class and subject.");
+      return;
+    }
 
-  const handleFetchVideos = () => {
-    const key = `${className}-${subject.toLowerCase()}`;
-    setVideos(videoDatabase[key] || []);
-    setHasSearched(true);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/videos?className=${className}&subject=${subject.toLowerCase()}`
+      );
+      const data = await response.json();
+      setVideos(data);
+      setHasSearched(true);
+    } catch (err) {
+      console.error("Error fetching videos:", err);
+      alert("Failed to fetch videos");
+    }
   };
 
   const handleLogout = () => {
@@ -51,14 +54,11 @@ function MainPage() {
           videos.map((vid, idx) => (
             <div key={idx} className="p-4 bg-white rounded shadow">
               <h3 className="mb-2 text-lg font-semibold">{vid.title}</h3>
-              <iframe
-                width="100%"
-                height="315"
-                src={vid.url}
-                title={vid.title}
-                frameBorder="0"
-                allowFullScreen
-              ></iframe>
+              <video width="100%" height="315" controls>
+                <source src={vid.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+
             </div>
           ))
         ) : hasSearched ? (

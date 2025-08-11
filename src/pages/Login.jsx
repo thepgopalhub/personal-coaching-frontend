@@ -2,22 +2,27 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
+import Loader from "../components/Loader";
 
 
 function Login() {
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ username: "", password: "", });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setFormData({ username: "", password: "" });
   }, []);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setLoading(true);
+
+  try {
     const res = await fetch("https://personal-coaching-backend.onrender.com/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,18 +32,24 @@ function Login() {
     const data = await res.json();
 
     if (res.ok) {
-    const fullUser = {
-    ...data.user,
-    token: data.token,
-  };
+      const fullUser = {
+        ...data.user,
+        token: data.token,
+      };
 
-  localStorage.setItem("user", JSON.stringify(fullUser)); 
-  navigate("/main");
-}
- else {
-    alert(data.msg || "Login failed");
+      localStorage.setItem("user", JSON.stringify(fullUser));
+      navigate("/main");
+    } else {
+      alert(data.msg || "Login failed");
+    }
+  } catch (err) {
+    alert("Something went wrong. Please try again.");
+    console.error(err);
+  } finally {
+    setLoading(false); 
   }
-  };
+};
+if (loading) return <Loader />;
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
