@@ -6,10 +6,10 @@ function MainPage() {
   const [className, setClassName] = useState("");
   const [subject, setSubject] = useState("");
   const [videos, setVideos] = useState([]);
+  const [newComments, setNewComments] = useState({});
   const [hasSearched, setHasSearched] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch videos
   const handleFetchVideos = async () => {
     if (!className || !subject) {
       alert("Please enter both class and subject.");
@@ -23,7 +23,7 @@ function MainPage() {
       const data = await response.json();
       console.log(data);
       setVideos(data);
-      
+
       setHasSearched(true);
     } catch (err) {
       console.error("Error fetching videos:", err);
@@ -31,18 +31,14 @@ function MainPage() {
     }
   };
 
-  // Like / Unlike a video
   const handleLike = async (videoId) => {
     try {
-      console.log("📌 handleLike called with:", videoId);
       const token = JSON.parse(localStorage.getItem("user"))?.token;
-      console.log("📌 LocalStorage user data:", token);
       if (!token) {
         alert("Please login to like videos");
         return;
       }
 
-      console.log("📌 Sending request to:", `https://personal-coaching-backend.onrender.com/api/videos/${videoId}/like`);
       const res = await axios.post(
         `https://personal-coaching-backend.onrender.com/api/videos/${videoId}/like`,
         {},
@@ -52,7 +48,6 @@ function MainPage() {
           },
         }
       );
-      console.log("✅ Like response:", res.data);
 
       // Update the specific video in state
       setVideos((prev) =>
@@ -65,6 +60,45 @@ function MainPage() {
       console.log(res.data);
     } catch (err) {
       console.error("Error liking video:", err);
+    }
+  };
+
+  const handleAddComment = async (videoId) => {
+    try {
+      const token = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")).token
+        : null;
+
+      if (!token) {
+        alert("You must be logged in to comment.");
+        return;
+      }
+
+      const text = newComments[videoId];
+      if (!text || text.trim() === "") {
+        alert("Comment cannot be empty.");
+        return;
+      }
+
+      const res = await axios.post(
+        `https://personal-coaching-backend.onrender.com/api/videos/${videoId}/comment`,
+        { text },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // ✅ Update local state with new comments
+      setVideos((prevVideos) =>
+        prevVideos.map((v) =>
+          v._id === videoId ? { ...v, comments: res.data.comment } : v
+        )
+      );
+
+      // Clear input box
+      setNewComments({ ...newComments, [videoId]: "" });
+    } catch (err) {
+      console.error("❌ Error adding comment:", err);
     }
   };
 
@@ -123,15 +157,50 @@ function MainPage() {
                 Your browser does not support the video tag.
               </video>
 
-              <div className="mt-4 flex items-center justify-between">
+              <div className="flex items-center justify-between mt-4">
                 <button
                   onClick={() => handleLike(vid._id)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                  className="flex items-center px-4 py-2 space-x-2 text-white transition bg-blue-500 rounded hover:bg-blue-600"
                 >
                   <span>👍</span>
                   <span>{vid.liked ? "Unlike" : "Like"}</span>
-                  <span>({vid.likesCount || 0})</span>
+                  <span>({vid.likes?.length || 0})</span>
                 </button>
+              </div>
+
+              <div className="comments-section">
+                <h4>💬 Comments</h4>
+                {Array.isArray(vid.comments) ? (
+                  vid.comments.length > 0 ? (
+                    <ul>
+                      {vid.comments.map((comment) => (
+                        <li key={comment._id || Math.random()}>
+                          <strong>{comment?.user?.name || "Unknown"}:</strong>{" "}
+                          {comment?.text || ""}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No comments yet</p>
+                  )
+                ) : (
+                  <p>No comments available</p>
+                )}
+              </div>
+
+              <div className="add-comment">
+                <input
+                  type="text"
+                  placeholder="Write a comment..."
+                  value={newComments[vid._id] || ""}
+                  onChange={(e) =>
+                    setNewComments({
+                      ...newComments,
+                      [vid._id]: e.target.value,
+                    })
+                  }
+                />
+                <button onClick={() => handleAddComment(vid._id)}>Post</button>
               </div>
             </div>
           ))
