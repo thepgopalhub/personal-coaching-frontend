@@ -150,12 +150,19 @@ function MainPage() {
       <div className="space-y-4">
         {videos.length > 0 ? (
           videos.map((vid) => (
-            <div key={vid._id} className="p-4 bg-white rounded shadow">
-              <h3 className="mb-2 text-lg font-semibold">{vid.title}</h3>
-              <video width="100%" height="315" controls>
-                <source src={vid.videoUrl} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+            <div
+              key={vid._id}
+              className="bg-white rounded-2xl shadow-lg p-4 max-w-2xl mx-auto w-full"
+            >
+              <h3 className="mb-3 text-lg sm:text-xl font-semibold text-gray-800">
+                {vid.title}
+              </h3>
+              <div className="w-full aspect-video rounded-lg overflow-hidden">
+                <video className="w-full h-full object-cover" controls>
+                  <source src={vid.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
 
               <div className="flex items-center justify-between mt-4">
                 <button
@@ -168,27 +175,31 @@ function MainPage() {
                 </button>
               </div>
 
-              <div className="comments-section">
-                <h4>💬 Comments</h4>
+              <div className="comments-section mt-4">
+                <h4 className="text-md font-medium text-gray-700 mb-2">
+                  💬 Comments
+                </h4>
                 {Array.isArray(vid.comments) ? (
                   vid.comments.length > 0 ? (
                     <ul>
                       {vid.comments.map((comment) => (
                         <li key={comment._id || Math.random()}>
-                          <strong>{comment?.user?.name || "Unknown"}:</strong>{" "}
+                          <strong className="text-gray-800">
+                            {comment?.user?.name || "Unknown"}:
+                          </strong>{" "}
                           {comment?.text || ""}
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p>No comments yet</p>
+                    <p className="text-gray-500 text-sm">No comments yet</p>
                   )
                 ) : (
                   <p>No comments available</p>
                 )}
               </div>
 
-              <div className="add-comment">
+              <div className="add-comment flex gap-2 mt-4">
                 <input
                   type="text"
                   placeholder="Write a comment..."
@@ -199,8 +210,20 @@ function MainPage() {
                       [vid._id]: e.target.value,
                     })
                   }
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
-                <button onClick={() => handleAddComment(vid._id)}>Post</button>
+                <button
+                  onClick={() => handleAddComment(vid._id)}
+                  disabled={!newComments[vid._id]}
+                  className={`px-4 py-2 rounded-lg text-white transition 
+        ${
+          newComments[vid._id]
+            ? "bg-blue-500 hover:bg-blue-600"
+            : "bg-gray-300 cursor-not-allowed"
+        }`}
+                >
+                  Post
+                </button>
               </div>
             </div>
           ))

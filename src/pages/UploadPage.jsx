@@ -67,7 +67,7 @@ function UploadPage() {
   if (loading) return <Loader />;
 
   return (
-    <div>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
       {loading ? (
         <p className="font-semibold text-blue-500">Uploading video...</p>
       ) : (
