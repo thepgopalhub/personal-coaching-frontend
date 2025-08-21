@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Loader from "../components/Loader";
 import axios from "axios";
 
 function MainPage() {
   const [className, setClassName] = useState("");
   const [subject, setSubject] = useState("");
   const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [newComments, setNewComments] = useState({});
   const [hasSearched, setHasSearched] = useState(false);
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ function MainPage() {
     }
 
     try {
+      setLoading(true);
       const token = JSON.parse(localStorage.getItem("user"))?.token;
       const response = await fetch(
         `https://personal-coaching-backend.onrender.com/api/videos?className=${className}&subject=${subject.toLowerCase()}`,
@@ -31,7 +34,9 @@ function MainPage() {
     } catch (err) {
       console.error("Error fetching videos:", err);
       alert("Failed to fetch videos");
-    }
+    } finally {
+      setLoading(false);
+      }
   };
 
   const handleLike = async (videoId) => {
@@ -143,7 +148,7 @@ function MainPage() {
         />
         <button
           onClick={handleFetchVideos}
-          className="px-4 py-2 text-white bg-blue-500 rounded"
+          className="px-4 py-2 text-white transition bg-blue-500 rounded hover:bg-blue-600"
         >
           Enter
         </button>
@@ -234,8 +239,10 @@ function MainPage() {
           <p>No videos found. Enter valid class & subject.</p>
         ) : null}
       </div>
+    {loading && <Loader overlay />}
     </div>
   );
+  
 }
 
 export default MainPage;
