@@ -37,7 +37,10 @@ function Login() {
         token: data.token,
       };
 
-      localStorage.setItem("user", JSON.stringify(fullUser));
+      localStorage.setItem("user", JSON.stringify({
+        token: data.token,
+        user: data.user,
+      }));
       navigate("/main");
     } else {
       alert(data.msg || "Login failed");

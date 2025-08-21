@@ -17,11 +17,14 @@ function MainPage() {
     }
 
     try {
+      const token = JSON.parse(localStorage.getItem("user"))?.token;
       const response = await fetch(
-        `https://personal-coaching-backend.onrender.com/api/videos?className=${className}&subject=${subject.toLowerCase()}`
+        `https://personal-coaching-backend.onrender.com/api/videos?className=${className}&subject=${subject.toLowerCase()}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
       );
       const data = await response.json();
-      console.log(data);
       setVideos(data);
 
       setHasSearched(true);
@@ -152,13 +155,13 @@ function MainPage() {
           videos.map((vid) => (
             <div
               key={vid._id}
-              className="bg-white rounded-2xl shadow-lg p-4 max-w-2xl mx-auto w-full"
+              className="w-full max-w-2xl p-4 mx-auto bg-white shadow-lg rounded-2xl"
             >
-              <h3 className="mb-3 text-lg sm:text-xl font-semibold text-gray-800">
+              <h3 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl">
                 {vid.title}
               </h3>
-              <div className="w-full aspect-video rounded-lg overflow-hidden">
-                <video className="w-full h-full object-cover" controls>
+              <div className="w-full overflow-hidden rounded-lg aspect-video">
+                <video className="object-cover w-full h-full" controls>
                   <source src={vid.videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
@@ -171,12 +174,12 @@ function MainPage() {
                 >
                   <span>👍</span>
                   <span>{vid.liked ? "Unlike" : "Like"}</span>
-                  <span>({vid.likes?.length || 0})</span>
+                  <span>({vid.likesCount || 0})</span>
                 </button>
               </div>
 
-              <div className="comments-section mt-4">
-                <h4 className="text-md font-medium text-gray-700 mb-2">
+              <div className="mt-4 comments-section">
+                <h4 className="mb-2 font-medium text-gray-700 text-md">
                   💬 Comments
                 </h4>
                 {Array.isArray(vid.comments) ? (
@@ -192,14 +195,14 @@ function MainPage() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-500 text-sm">No comments yet</p>
+                    <p className="text-sm text-gray-500">No comments yet</p>
                   )
                 ) : (
                   <p>No comments available</p>
                 )}
               </div>
 
-              <div className="add-comment flex gap-2 mt-4">
+              <div className="flex gap-2 mt-4 add-comment">
                 <input
                   type="text"
                   placeholder="Write a comment..."
@@ -210,7 +213,7 @@ function MainPage() {
                       [vid._id]: e.target.value,
                     })
                   }
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <button
                   onClick={() => handleAddComment(vid._id)}
