@@ -12,7 +12,7 @@ function UploadPage() {
 
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const token = storedUser?.token;
-  const role = storedUser?.role;
+  const role = storedUser?.user?.role;
 
   const handleChange = (e) => {
     setVideoData({ ...videoData, [e.target.name]: e.target.value });
