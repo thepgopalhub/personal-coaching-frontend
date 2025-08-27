@@ -1,7 +1,9 @@
 import { useState } from "react";
 import Loader from "../components/Loader";
+import useDarkMode from "../hooks/useDarkMode";
 
 function UploadPage() {
+  const [theme] = useDarkMode();
   const [videoData, setVideoData] = useState({
     title: "",
     className: "",
@@ -67,45 +69,45 @@ function UploadPage() {
   if (loading) return <Loader />;
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       {loading ? (
         <p className="font-semibold text-blue-500">Uploading video...</p>
       ) : (
         <form
           onSubmit={handleUpload}
-          className="max-w-md p-4 mx-auto bg-white rounded shadow"
+          className="max-w-md p-6 mx-auto bg-white rounded-lg shadow dark:bg-gray-800"
         >
           <input
             name="title"
             placeholder="Title"
             onChange={handleChange}
-            className="block w-full p-2 mb-2 border rounded"
+            className="block w-full p-2 mb-3 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
             required
           />
           <input
             name="className"
             placeholder="Class (e.g. 10)"
             onChange={handleChange}
-            className="block w-full p-2 mb-2 border rounded"
+            className="block w-full p-2 mb-3 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
             required
           />
           <input
             name="subject"
             placeholder="Subject (e.g. Math)"
             onChange={handleChange}
-            className="block w-full p-2 mb-2 border rounded"
+            className="block w-full p-2 mb-3 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
             required
           />
           <input
             type="file"
             accept="video/*"
             onChange={(e) => setFile(e.target.files[0])}
-            className="block mb-4"
+            className="block mb-4 text-gray-700 dark:text-gray-300"
             required
           />
           <button
             type="submit"
-            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+            className="w-full px-4 py-2 text-white transition bg-blue-500 rounded hover:bg-blue-600"
           >
             Upload Video
           </button>

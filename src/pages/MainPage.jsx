@@ -19,38 +19,37 @@ function MainPage() {
   };
 
   const handleFetchVideos = async () => {
-  if (!className || !subject) {
-    alert("Please enter both class and subject.");
-    return;
-  }
+    if (!className || !subject) {
+      alert("Please enter both class and subject.");
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const token = JSON.parse(localStorage.getItem("user"))?.token;
+    try {
+      setLoading(true);
+      const token = JSON.parse(localStorage.getItem("user"))?.token;
 
-    // build query dynamically
-    const queryParams = new URLSearchParams();
-    if (className.trim()) queryParams.append("className", className.trim());
-    if (subject.trim()) queryParams.append("subject", subject.trim().toLowerCase());
+      const queryParams = new URLSearchParams();
+      if (className.trim()) queryParams.append("className", className.trim());
+      if (subject.trim())
+        queryParams.append("subject", subject.trim().toLowerCase());
 
-    const response = await fetch(
-      `https://personal-coaching-backend.onrender.com/api/videos?${queryParams.toString()}`,
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
-    );
+      const response = await fetch(
+        `https://personal-coaching-backend.onrender.com/api/videos?${queryParams.toString()}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
 
-    const data = await response.json();
-    setVideos(data);
-    setHasSearched(true);
-  } catch (err) {
-    console.error("Error fetching videos:", err);
-    alert("Failed to fetch videos");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      const data = await response.json();
+      setVideos(data);
+      setHasSearched(true);
+    } catch (err) {
+      console.error("Error fetching videos:", err);
+      alert("Failed to fetch videos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchLatest = async () => {
@@ -58,16 +57,16 @@ function MainPage() {
         setLoading(true);
         const token = JSON.parse(localStorage.getItem("user"))?.token;
         const res = await axios.get(
-        "https://personal-coaching-backend.onrender.com/api/videos",
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
-      setVideos(res.data);
+          "https://personal-coaching-backend.onrender.com/api/videos",
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        );
+        setVideos(res.data);
       } catch (err) {
         console.error("Error fetching latest videos:", err);
       } finally {
-      setLoading(false);
+        setLoading(false);
       }
     };
     fetchLatest();
@@ -217,101 +216,103 @@ function MainPage() {
 
       {/* Video List */}
       <div className="p-6">
-  <h2 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-100">
-    {hasSearched ? "Search Results" : "Recently Uploaded"}
-  </h2>
+        <h2 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-100">
+          {hasSearched ? "Search Results" : "Recently Uploaded"}
+        </h2>
 
-  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-     {loading ? (
-    <div className="flex items-center justify-center py-10 col-span-full">
-      <Loader /> 
-    </div>
-  ) : videos.length > 0 ? (
-      videos.map((vid) => (
-        <div
-          key={vid._id}
-          className="p-4 bg-white rounded-lg shadow dark:bg-gray-800"
-        >
-          <h3 className="mt-2 font-semibold text-gray-800 dark:text-gray-100">
-            {vid.title}
-          </h3>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-10 col-span-full">
+              <Loader />
+            </div>
+          ) : videos.length > 0 ? (
+            videos.map((vid) => (
+              <div
+                key={vid._id}
+                className="p-4 bg-white rounded-lg shadow dark:bg-gray-800"
+              >
+                <h3 className="mt-2 font-semibold text-gray-800 dark:text-gray-100">
+                  {vid.title}
+                </h3>
 
-          <div className="w-full overflow-hidden rounded-lg aspect-video">
-            <video className="object-cover w-full h-full" controls>
-              <source src={vid.videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
+                <div className="w-full overflow-hidden rounded-lg aspect-video">
+                  <video className="object-cover w-full h-full" controls>
+                    <source src={vid.videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
 
-          {/* Like button */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
-            <button
-              onClick={() => handleLike(vid._id)}
-              className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-white transition bg-blue-500 rounded sm:w-auto hover:bg-blue-600"
-            >
-              <span>👍</span>
-              <span>{vid.liked ? "Unlike" : "Like"}</span>
-              <span>({vid.likesCount || 0})</span>
-            </button>
-          </div>
+                {/* Like button */}
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
+                  <button
+                    onClick={() => handleLike(vid._id)}
+                    className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-white transition bg-blue-500 rounded sm:w-auto hover:bg-blue-600"
+                  >
+                    <span>👍</span>
+                    <span>{vid.liked ? "Unlike" : "Like"}</span>
+                    <span>({vid.likesCount || 0})</span>
+                  </button>
+                </div>
 
-          {/* Comments */}
-          <div className="mt-4 comments-section">
-            <h4 className="mb-2 font-medium text-gray-700 dark:text-gray-200 text-md">
-              💬 Comments
-            </h4>
-            {Array.isArray(vid.comments) && vid.comments.length > 0 ? (
-              <ul className="space-y-1 break-words">
-                {vid.comments.map((comment) => (
-                  <li key={comment._id || Math.random()}>
-                    <strong className="text-gray-800 dark:text-gray-100">
-                      {comment?.user?.name || "Unknown"}:
-                    </strong>{" "}
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {comment?.text || ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet</p>
-            )}
-          </div>
+                {/* Comments */}
+                <div className="mt-4 comments-section">
+                  <h4 className="mb-2 font-medium text-gray-700 dark:text-gray-200 text-md">
+                    💬 Comments
+                  </h4>
+                  {Array.isArray(vid.comments) && vid.comments.length > 0 ? (
+                    <ul className="space-y-1 break-words">
+                      {vid.comments.map((comment) => (
+                        <li key={comment._id || Math.random()}>
+                          <strong className="text-gray-800 dark:text-gray-100">
+                            {comment?.user?.name || "Unknown"}:
+                          </strong>{" "}
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {comment?.text || ""}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      No comments yet
+                    </p>
+                  )}
+                </div>
 
-          {/* Add comment */}
-          <div className="flex flex-col gap-2 mt-4 sm:flex-row sm:items-center add-comment">
-            <input
-              type="text"
-              placeholder="Write a comment..."
-              value={newComments[vid._id] || ""}
-              onChange={(e) =>
-                setNewComments({
-                  ...newComments,
-                  [vid._id]: e.target.value,
-                })
-              }
-              className="flex-1 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 dark:text-white dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-500"
-            />
-            <button
-              onClick={() => handleAddComment(vid._id)}
-              disabled={!newComments[vid._id]}
-              className={`px-4 py-2 rounded-lg text-white transition w-full sm:w-auto
+                {/* Add comment */}
+                <div className="flex flex-col gap-2 mt-4 sm:flex-row sm:items-center add-comment">
+                  <input
+                    type="text"
+                    placeholder="Write a comment..."
+                    value={newComments[vid._id] || ""}
+                    onChange={(e) =>
+                      setNewComments({
+                        ...newComments,
+                        [vid._id]: e.target.value,
+                      })
+                    }
+                    className="flex-1 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 dark:text-white dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-500"
+                  />
+                  <button
+                    onClick={() => handleAddComment(vid._id)}
+                    disabled={!newComments[vid._id]}
+                    className={`px-4 py-2 rounded-lg text-white transition w-full sm:w-auto
                 ${
                   newComments[vid._id]
                     ? "bg-blue-500 hover:bg-blue-600"
                     : "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
                 }`}
-            >
-              Post
-            </button>
-          </div>
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No videos available.</p>
+          )}
         </div>
-      ))
-    ) : (
-      <p className="text-gray-500">No videos available.</p>
-    )}
-  </div>
-</div>
+      </div>
     </div>
   );
 }
