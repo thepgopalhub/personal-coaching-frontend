@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Loader from "../components/Loader";
 import axios from "axios";
 import useDarkMode from "../hooks/useDarkMode";
+import { Sun, Moon } from "lucide-react";
+import { Heart } from "lucide-react";
 
 function MainPage() {
   const [theme, setTheme] = useDarkMode();
@@ -179,9 +181,13 @@ function MainPage() {
           {/* 🌙 Dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="px-3 py-1 text-sm font-semibold text-gray-800 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-100"
+            className="p-2 text-gray-800 transition-colors duration-300 bg-gray-200 rounded-full dark:bg-gray-700 dark:text-gray-100"
           >
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            {theme === "dark" ? (
+              <Sun size={20} className="animate-spin-slow" />
+            ) : (
+              <Moon size={20} className="animate-pulse" />
+            )}
           </button>
 
           <button onClick={handleLogout} className="font-semibold text-red-500">
@@ -243,32 +249,62 @@ function MainPage() {
                 </div>
 
                 {/* Like button */}
-                <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
+                <div className="flex items-center gap-2 mt-4">
                   <button
                     onClick={() => handleLike(vid._id)}
-                    className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-white transition bg-blue-500 rounded sm:w-auto hover:bg-blue-600"
+                    className="flex items-center space-x-1 focus:outline-none"
                   >
-                    <span>👍</span>
-                    <span>{vid.liked ? "Unlike" : "Like"}</span>
-                    <span>({vid.likesCount || 0})</span>
+                    <Heart
+                      size={24}
+                      className={`transition-transform duration-200 ${
+                        vid.liked
+                          ? "fill-red-500 text-red-500 scale-125"
+                          : "text-gray-500"
+                      }`}
+                    />
+
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {vid.likesCount || 0}
+                    </span>
                   </button>
                 </div>
 
                 {/* Comments */}
                 <div className="mt-4 comments-section">
-                  <h4 className="mb-2 font-medium text-gray-700 dark:text-gray-200 text-md">
+                  <h4 className="flex items-center gap-2 mb-3 font-semibold text-gray-800 dark:text-gray-200 text-md">
                     💬 Comments
+                    <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                      ({vid.comments?.length || 0})
+                    </span>
                   </h4>
+
                   {Array.isArray(vid.comments) && vid.comments.length > 0 ? (
-                    <ul className="space-y-1 break-words">
+                    <ul className="space-y-3">
                       {vid.comments.map((comment) => (
-                        <li key={comment._id || Math.random()}>
-                          <strong className="text-gray-800 dark:text-gray-100">
-                            {comment?.user?.name || "Unknown"}:
-                          </strong>{" "}
-                          <span className="text-gray-700 dark:text-gray-300">
-                            {comment?.text || ""}
-                          </span>
+                        <li
+                          key={comment._id || Math.random()}
+                          className="flex items-start gap-3"
+                        >
+                          {/* Avatar (placeholder if no profile pic) */}
+                          <div className="flex items-center justify-center w-8 h-8 text-sm font-bold text-gray-700 bg-gray-300 rounded-full dark:bg-gray-600 dark:text-gray-200">
+                            {comment?.user?.name?.charAt(0).toUpperCase() ||
+                              "U"}
+                          </div>
+
+                          {/* Comment content */}
+                          <div className="flex-1">
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-800 dark:text-gray-100">
+                                {comment?.user?.name || "Unknown"}
+                              </span>{" "}
+                              <span className="text-gray-700 dark:text-gray-300">
+                                {comment?.text}
+                              </span>
+                            </p>
+                            <span className="text-xs text-gray-400">
+                              just now
+                            </span>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -280,10 +316,10 @@ function MainPage() {
                 </div>
 
                 {/* Add comment */}
-                <div className="flex flex-col gap-2 mt-4 sm:flex-row sm:items-center add-comment">
+                <div className="flex items-center gap-2 mt-4 add-comment">
                   <input
                     type="text"
-                    placeholder="Write a comment..."
+                    placeholder="Add a comment..."
                     value={newComments[vid._id] || ""}
                     onChange={(e) =>
                       setNewComments({
@@ -291,17 +327,17 @@ function MainPage() {
                         [vid._id]: e.target.value,
                       })
                     }
-                    className="flex-1 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-lg sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 dark:text-white dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-500"
+                    className="flex-1 px-3 py-2 text-sm placeholder-gray-400 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
                   />
                   <button
                     onClick={() => handleAddComment(vid._id)}
                     disabled={!newComments[vid._id]}
-                    className={`px-4 py-2 rounded-lg text-white transition w-full sm:w-auto
-                ${
-                  newComments[vid._id]
-                    ? "bg-blue-500 hover:bg-blue-600"
-                    : "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
-                }`}
+                    className={`px-4 py-2 text-sm rounded-full font-medium transition
+      ${
+        newComments[vid._id]
+          ? "bg-blue-500 text-white hover:bg-blue-600"
+          : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+      }`}
                   >
                     Post
                   </button>
