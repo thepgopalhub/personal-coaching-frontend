@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useDarkMode from "../hooks/useDarkMode";
+import Loader from "../components/Loader";
 
 const AssignmentList = () => {
+  useDarkMode();
+
   const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAssignments = async () => {
@@ -15,11 +20,15 @@ const AssignmentList = () => {
         setAssignments(res.data);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAssignments();
   }, []);
+
+  if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen px-4 py-10 bg-gray-100 dark:bg-gray-900">
@@ -51,14 +60,27 @@ const AssignmentList = () => {
                 <p className="text-gray-800 dark:text-gray-200">
                   <strong>Email:</strong> {a.email}
                 </p>
-                <a
-                  href={a.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 text-sm font-medium text-blue-500 hover:underline"
-                >
-                  📥 Download PDF
-                </a>
+
+                <div className="flex items-center gap-4 mt-3">
+                  {/* View PDF */}
+                  <a
+                    href={`https://docs.google.com/viewer?url=${encodeURIComponent(a.fileUrl)}&embedded=true`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-green-600 hover:underline"
+                  >
+                    👁️ View PDF
+                  </a>
+
+                  {/* Download PDF */}
+                  <a
+                    href={a.fileUrl}
+                    download
+                    className="text-sm font-medium text-blue-500 hover:underline"
+                  >
+                    📥 Download PDF
+                  </a>
+                </div>
               </li>
             ))}
           </ul>
