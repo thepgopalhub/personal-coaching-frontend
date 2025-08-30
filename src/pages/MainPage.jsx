@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Loader from "../components/Loader";
 import axios from "axios";
 import useDarkMode from "../hooks/useDarkMode";
-import { Sun, Moon } from "lucide-react";
+import { Video, FileText, LogOut, Sun, Moon } from "lucide-react";
 import { Heart } from "lucide-react";
 
 function MainPage() {
@@ -157,23 +157,36 @@ function MainPage() {
         <h1 className="text-xl font-bold text-center text-gray-800 dark:text-gray-100 sm:text-left">
           Samvaad Learning App
         </h1>
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           {(() => {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (user?.user?.role === "admin") {
+            const storedUser = JSON.parse(localStorage.getItem("user"));
+            const role = storedUser?.user?.role?.toLowerCase(); // normalize case
+
+            if (role === "admin") {
               return (
-                <Link to="/upload" className="mr-4 font-semibold text-blue-500">
-                  Upload Video
-                </Link>
+                <>
+                  {/* Upload Video */}
+                  <Link to="/upload">
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-500 transition-colors rounded-md hover:bg-blue-100 dark:hover:bg-gray-700">
+                      <Video className="w-4 h-4" /> Upload Video
+                    </button>
+                  </Link>
+
+                  {/* View Assignments */}
+                  <Link to="/assignments">
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-500 transition-colors rounded-md hover:bg-green-100 dark:hover:bg-gray-700">
+                      <FileText className="w-4 h-4" /> View Assignments
+                    </button>
+                  </Link>
+                </>
               );
             } else {
               return (
-                <button
-                  onClick={() => alert("Only admins can upload videos!")}
-                  className="mr-4 font-semibold text-gray-400 cursor-not-allowed"
-                >
-                  Upload Video
-                </button>
+                <Link to="/submit-assignment">
+                  <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-500 transition-colors rounded-md hover:bg-green-100 dark:hover:bg-gray-700">
+                    <FileText className="w-4 h-4" /> Submit Assignment
+                  </button>
+                </Link>
               );
             }
           })()}
@@ -181,17 +194,21 @@ function MainPage() {
           {/* 🌙 Dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 text-gray-800 transition-colors duration-300 bg-gray-200 rounded-full dark:bg-gray-700 dark:text-gray-100"
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-800 transition-colors rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100"
           >
             {theme === "dark" ? (
-              <Sun size={20} className="animate-spin-slow" />
+              <Sun className="w-4 h-4" />
             ) : (
-              <Moon size={20} className="animate-pulse" />
+              <Moon className="w-4 h-4" />
             )}
           </button>
 
-          <button onClick={handleLogout} className="font-semibold text-red-500">
-            Logout
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-500 transition-colors rounded-md hover:bg-red-100 dark:hover:bg-gray-700"
+          >
+            <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>
       </nav>
@@ -263,8 +280,9 @@ function MainPage() {
                       }`}
                     />
 
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {vid.likesCount || 0}
+                    <span className="ml-1 text-sm font-medium text-gray-700 dark:text-gray-200">
+                      {vid.likesCount || 0}{" "}
+                      {vid.likesCount === 1 ? "Like" : "Likes"}
                     </span>
                   </button>
                 </div>

@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import MainPage from "./pages/MainPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UploadPage from "./pages/UploadPage";
+import SubmitAssignment from "./pages/SubmitAssignment";
+import AssignmentList from "./pages/AssignmentList";
 
 function App() {
     return (
@@ -13,7 +15,8 @@ function App() {
                 <Route path="/" element={<Login />} />
                 <Route path="/main" element={<ProtectedRoute><MainPage /></ProtectedRoute>} />
                 <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />
-                
+                <Route path="/submit-assignment" element={<SubmitAssignment />} />
+                <Route path="/assignments" element={<AssignmentList />} />
             </Routes>
         </Router>
     );
