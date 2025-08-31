@@ -6,10 +6,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UploadPage from "./pages/UploadPage";
 import SubmitAssignment from "./pages/SubmitAssignment";
 import AssignmentList from "./pages/AssignmentList";
+import { Toaster } from "react-hot-toast";
 
 function App() {
     return (
         <Router>
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             <Routes>
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<Login />} />

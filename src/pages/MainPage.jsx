@@ -5,6 +5,7 @@ import axios from "axios";
 import useDarkMode from "../hooks/useDarkMode";
 import { Video, FileText, LogOut, Sun, Moon } from "lucide-react";
 import { Heart } from "lucide-react";
+import { notifySuccess, notifyError } from "../utils/notify";
 
 function MainPage() {
   const [theme, setTheme] = useDarkMode();
@@ -22,7 +23,7 @@ function MainPage() {
 
   const handleFetchVideos = async () => {
     if (!className || !subject) {
-      alert("Please enter both class and subject.");
+      notifyError("Please enter both class and subject.");
       return;
     }
 
@@ -47,7 +48,7 @@ function MainPage() {
       setHasSearched(true);
     } catch (err) {
       console.error("Error fetching videos:", err);
-      alert("Failed to fetch videos");
+      notifyError("Failed to fetch videos");
     } finally {
       setLoading(false);
     }
@@ -78,7 +79,7 @@ function MainPage() {
     try {
       const token = JSON.parse(localStorage.getItem("user"))?.token;
       if (!token) {
-        alert("Please login to like videos");
+        notifyError("Please login to like videos");
         return;
       }
 
@@ -113,13 +114,13 @@ function MainPage() {
         : null;
 
       if (!token) {
-        alert("You must be logged in to comment.");
+        notifyError("You must be logged in to comment.");
         return;
       }
 
       const text = newComments[videoId];
       if (!text || text.trim() === "") {
-        alert("Comment cannot be empty.");
+        notifyError("Comment cannot be empty.");
         return;
       }
 
@@ -131,7 +132,6 @@ function MainPage() {
         }
       );
 
-      // ✅ Update local state with new comments
       setVideos((prevVideos) =>
         prevVideos.map((v) =>
           v._id === videoId ? { ...v, comments: res.data.comment } : v
@@ -194,7 +194,7 @@ function MainPage() {
           {/* 🌙 Dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-800 transition-colors rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100"
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-800 transition-colors bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100"
           >
             {theme === "dark" ? (
               <Sun className="w-4 h-4" />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Loader from "../components/Loader";
 import useDarkMode from "../hooks/useDarkMode";
+import { notifySuccess, notifyError } from "../utils/notify";
 
 function UploadPage() {
   const [theme] = useDarkMode();
@@ -25,13 +26,13 @@ function UploadPage() {
     setLoading(true);
 
     if (!storedUser || role !== "admin") {
-      alert("Only admins can upload videos.");
+      notifyError("Only admins can upload videos.");
       setLoading(false);
       return;
     }
 
     if (!file || !videoData.title || !videoData.className || !videoData.subject) {
-      alert("Please fill in all fields and choose a video.");
+      notifyError("Please fill in all fields and choose a video.");
       setLoading(false);
       return;
     }
@@ -53,14 +54,14 @@ function UploadPage() {
 
       if (!res.ok) {
         const errText = await res.text();
-        throw new Error(errText || "Upload failed");
+        notifyError(errText || "Upload failed");
       }
 
       const data = await res.json();
-      alert(data.message || "Upload successful ✅");
+      notifySuccess(data.message || "Upload successful ✅");
     } catch (err) {
       console.error("❌ Upload error:", err);
-      alert("Upload failed: " + err.message);
+      notifyError("Upload failed: " + err.message);
     } finally {
       setLoading(false);
     }
